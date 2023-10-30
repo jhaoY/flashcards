@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
@@ -8,8 +9,21 @@ const EditCardModal = ({ show, onHide, card, onUpdate }) => {
   const [back, setBack] = useState(card.back);
 
   const handleSubmit = () => {
-    onUpdate({ ...card, front, back });
-    onHide();
+    // Update the backend
+    axios.put(`api/cards/update/${card.id}`, { front, back })
+      .then(response => {
+        if (response.data.success) {
+          // Update the frontend
+          onUpdate({ ...card, front, back });
+          onHide();
+        } else {
+          // Handle any custom error messages from the server
+          console.error("Error updating card:", response.data.message);
+        }
+      })
+      .catch(error => {
+        console.error("Error updating card:", error);
+      });
   };
 
   return (
